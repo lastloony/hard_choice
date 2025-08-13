@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-from random import choice
+from random import choice, randint
 
 def animate_random(values, steps=20):
     """Анимация выбора"""
@@ -15,19 +15,39 @@ def animate_random(values, steps=20):
 
 def generate_random_value():
     input_text = input_field.get().strip()
-    if not input_text:
-        values = ["Да", "Нет"]
+
+    # Режим для чисел
+    if mode_var.get() == "numbers":
+        try:
+            start, end = map(int, input_text.split("-"))
+            if start > end:
+                start, end = end, start
+            values = [str(i) for i in range(start, end + 1)]
+        except ValueError:
+            messagebox.showerror("Ошибка", "Введите диапазон чисел в формате: 1-100")
+            return
     else:
-        values = [v.strip() for v in input_text.split(",") if v.strip()]
-        if not values:
+        # Режим для слов
+        if not input_text:
             values = ["Да", "Нет"]
+        else:
+            values = [v.strip() for v in input_text.split(",") if v.strip()]
+            if not values:
+                values = ["Да", "Нет"]
+
     animate_random(values)
 
 root = tk.Tk()
 root.title("Hard choice")
-root.geometry('500x250')
+root.geometry('500x300')
 
-label = tk.Label(root, text="Введите варианты через запятую (или оставьте пустым для Да/Нет):")
+# Переключатель режима
+mode_var = tk.StringVar(value="text")
+tk.Label(root, text="Выберите режим:").pack()
+tk.Radiobutton(root, text="Список значений", variable=mode_var, value="text").pack()
+tk.Radiobutton(root, text="Диапазон чисел", variable=mode_var, value="numbers").pack()
+
+label = tk.Label(root, text="Введите значения через запятую или диапазон чисел:")
 label.pack(pady=5)
 
 input_field = tk.Entry(root, width=50)
